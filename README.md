@@ -92,26 +92,84 @@ postgres=# \q
 
 ### Задание 2
 
-`Приведите ответ в свободной форме........`
-
-1. `Заполните здесь этапы выполнения, если требуется ....`
-2. `Заполните здесь этапы выполнения, если требуется ....`
-3. `Заполните здесь этапы выполнения, если требуется ....`
-4. `Заполните здесь этапы выполнения, если требуется ....`
-5. `Заполните здесь этапы выполнения, если требуется ....`
-6. 
-
+Создадим БД test_database:
 ```
-Поле для вставки кода...
-....
-....
-....
-....
+nikulinm_db=# create database test_database;
+CREATE DATABASE
+nikulinm_db=# \l
+                                   List of databases
+     Name      |  Owner   | Encoding |  Collate   |   Ctype    |   Access privileges
+---------------+----------+----------+------------+------------+-----------------------
+ nikulinm_db   | nikulinm | UTF8     | en_US.utf8 | en_US.utf8 |
+ postgres      | nikulinm | UTF8     | en_US.utf8 | en_US.utf8 |
+ template0     | nikulinm | UTF8     | en_US.utf8 | en_US.utf8 | =c/nikulinm          +
+               |          |          |            |            | nikulinm=CTc/nikulinm
+ template1     | nikulinm | UTF8     | en_US.utf8 | en_US.utf8 | =c/nikulinm          +
+               |          |          |            |            | nikulinm=CTc/nikulinm
+ test_database | nikulinm | UTF8     | en_US.utf8 | en_US.utf8 |
+(5 rows)
 ```
+Восстановим бэкап:
+```
+root@a8c227640926:/# psql -U nikulinm -d test_database < /var/tmp/test_dump.sql
+SET
+SET
+SET
+SET
+SET
+ set_config
+------------
 
-`При необходимости прикрепитe сюда скриншоты
-![Название скриншота 2](ссылка на скриншот 2)`
+(1 row)
 
+SET
+SET
+SET
+SET
+SET
+SET
+CREATE TABLE
+ERROR:  role "postgres" does not exist
+CREATE SEQUENCE
+ERROR:  role "postgres" does not exist
+ALTER SEQUENCE
+ALTER TABLE
+COPY 8
+ setval
+--------
+      8
+(1 row)
+
+ALTER TABLE
+```
+Подключимся к БД test_database, посмотрим список существующих таблиц и соберем статистику с помощью ANALYZE:
+```
+root@a8c227640926:/# psql -U nikulinm -d test_database
+psql (13.11 (Debian 13.11-1.pgdg120+1))
+Type "help" for help.
+
+test_database=# \dt
+         List of relations
+ Schema |  Name  | Type  |  Owner
+--------+--------+-------+----------
+ public | orders | table | nikulinm
+(1 row)
+
+test_database=# ANALYZE VERBOSE orders;
+INFO:  analyzing "public.orders"
+INFO:  "orders": scanned 1 of 1 pages, containing 8 live rows and 0 dead rows; 8 rows in sample, 8 estimated total rows
+ANALYZE
+```
+Найдем столбец таблицы orders с наибольшим средним значением размера элементов в байтах (это title):
+```
+test_database=# select attname, avg_width from pg_stats where tablename='orders';
+ attname | avg_width
+---------+-----------
+ id      |         4
+ title   |        16
+ price   |         4
+(3 rows)
+```
 
 ---
 
