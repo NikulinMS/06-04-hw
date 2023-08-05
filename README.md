@@ -175,25 +175,50 @@ test_database=# select attname, avg_width from pg_stats where tablename='orders'
 
 ### Задание 3
 
-`Приведите ответ в свободной форме........`
-
-1. `Заполните здесь этапы выполнения, если требуется ....`
-2. `Заполните здесь этапы выполнения, если требуется ....`
-3. `Заполните здесь этапы выполнения, если требуется ....`
-4. `Заполните здесь этапы выполнения, если требуется ....`
-5. `Заполните здесь этапы выполнения, если требуется ....`
-6. 
-
+SQL-транзакция:
 ```
-Поле для вставки кода...
-....
-....
-....
-....
+BEGIN;
+CREATE TABLE orders_1 (LIKE orders);
+INSERT INTO orders_1 SELECT * FROM orders WHERE price >499;
+DELETE FROM orders WHERE price >499;
+CREATE TABLE orders_2 (LIKE orders);
+INSERT INTO orders_2 SELECT * FROM orders WHERE price <=499;
+DELETE FROM orders WHERE price <=499;
+COMMIT;
 ```
+```
+test_database=# SELECT * FROM public.orders;
+ id | title | price
+----+-------+-------
+(0 rows)
 
-`При необходимости прикрепитe сюда скриншоты
-![Название скриншота](ссылка на скриншот)`
+test_database=# SELECT * FROM public.orders_1;
+ id |       title        | price
+----+--------------------+-------
+  2 | My little database |   500
+  6 | WAL never lies     |   900
+  8 | Dbiezdmin          |   501
+(3 rows)
+
+test_database=# SELECT * FROM public.orders_2;
+ id |        title         | price
+----+----------------------+-------
+  1 | War and peace        |   100
+  3 | Adventure psql time  |   300
+  4 | Server gravity falls |   300
+  5 | Log gossips          |   123
+  7 | Me and my bash-pet   |   499
+(5 rows)
+```
+Да, в PostgreSQL можно было изначально исключить ручное разбиение таблицы orders при проектировании. Для этого необходимо использовать автоматическое разбиение таблиц на разделы (partitions) при создании базы данных или при добавлении новых данных в таблицу.
+
+Автоматическое разбиение таблиц на разделы может быть выполнено при помощи функции partition_by() в SQL-запросе или при помощи оператора CREATE TABLE … PARTITION BY RANGE в языке SQL. При использовании функции partition_by(), можно задать условие для разделения таблицы на разделы по определенному столбцу.
+
+Кроме того, в PostgreSQL также есть возможность автоматического разбиения таблиц при помощи автоматической сегментации (auto-segmentation), которая позволяет автоматически создавать разделы на основе статистики по данным в таблице. Для включения автоматической сегментации таблицы нужно использовать параметр auto_explain в параметре конфигурации сервера.
+
+
+
+---
 
 ### Задание 4
 
